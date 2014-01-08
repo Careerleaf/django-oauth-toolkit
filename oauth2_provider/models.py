@@ -55,7 +55,7 @@ class AbstractApplication(models.Model):
 
     client_id = models.CharField(max_length=100, unique=True,
                                  default=generate_client_id)
-    user = models.ForeignKey(AUTH_USER_MODEL)
+    user = models.CharField(max_length=24, blank=True) # models.ForeignKey(AUTH_USER_MODEL)
     help_text = _("Allowed URIs list, space separated")
     redirect_uris = models.TextField(help_text=help_text,
                                      validators=[validate_uris], blank=True)
@@ -126,7 +126,7 @@ class Grant(models.Model):
     * :attr:`redirect_uri` Self explained
     * :attr:`scope` Required scopes, optional
     """
-    user = models.ForeignKey(AUTH_USER_MODEL)
+    user = models.CharField(max_length=24) #models.ForeignKey(AUTH_USER_MODEL)
     code = models.CharField(max_length=255)  # code comes from oauthlib
     application = models.ForeignKey(oauth2_settings.APPLICATION_MODEL)
     expires = models.DateTimeField()
@@ -161,7 +161,7 @@ class AccessToken(models.Model):
                       :data:`settings.ACCESS_TOKEN_EXPIRE_SECONDS`
     * :attr:`scope` Allowed scopes
     """
-    user = models.ForeignKey(AUTH_USER_MODEL)
+    user = models.CharField(max_length=24) # models.ForeignKey(AUTH_USER_MODEL)
     token = models.CharField(max_length=255)
     application = models.ForeignKey(oauth2_settings.APPLICATION_MODEL)
     expires = models.DateTimeField()
@@ -213,7 +213,7 @@ class RefreshToken(models.Model):
     * :attr:`access_token` AccessToken instance this refresh token is
                            bounded to
     """
-    user = models.ForeignKey(AUTH_USER_MODEL)
+    user = models.CharField(max_length=24, blank=True) #models.ForeignKey(AUTH_USER_MODEL)
     token = models.CharField(max_length=255)
     application = models.ForeignKey(oauth2_settings.APPLICATION_MODEL)
     access_token = models.OneToOneField(AccessToken,
