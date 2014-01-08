@@ -12,6 +12,10 @@ from .compat import unquote_plus
 from .models import Grant, AccessToken, RefreshToken, get_application_model
 from .settings import oauth2_settings
 
+def find_user_by_id(user_id):
+    from eprofile.models import Cand 
+    return Cand.objects(id=user_id).first()
+
 Application = get_application_model()
 
 log = logging.getLogger('oauth2_provider')
@@ -191,11 +195,13 @@ class OAuth2Validator(RequestValidator):
             return False
 
         try:
-            access_token = AccessToken.objects.select_related("application", "user").get(
+            access_token = AccessToken.objects.select_related("application").get(
                 token=token)
             if access_token.is_valid(scopes):
                 request.client = access_token.application
-                request.user = access_token.user
+
+                #request.user = access_token.user
+                request.user = find_user_by_id(access_token.user)
                 request.scopes = scopes
 
                 # this is needed by django rest framework
@@ -275,7 +281,7 @@ class OAuth2Validator(RequestValidator):
             request.user = request.client.user
 
         access_token = AccessToken(
-            user=request.user,
+            user=str(request.user.id),
             scope=token['scope'],
             expires=expires,
             token=token['access_token'],
@@ -284,7 +290,7 @@ class OAuth2Validator(RequestValidator):
 
         if 'refresh_token' in token:
             refresh_token = RefreshToken(
-                user=request.user,
+                user=str(request.user.id),
                 token=token['refresh_token'],
                 application=request.client,
                 access_token=access_token

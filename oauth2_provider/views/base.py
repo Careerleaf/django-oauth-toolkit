@@ -121,6 +121,7 @@ class AuthorizationView(BaseAuthorizationView, FormView):
                 #DEV testing
                 from oauth2_provider.models import AccessToken
                 user_id = str(request.user.id)
+                #print 'current user_id: %s'  % user_id
                 tokens = AccessToken.objects.filter(user=user_id, application=kwargs['application'],
                                                              expires__gt=timezone.now()).all()
                 # check past authorizations regarded the same scopes as the current one
