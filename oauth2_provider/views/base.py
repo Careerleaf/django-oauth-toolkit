@@ -118,7 +118,10 @@ class AuthorizationView(BaseAuthorizationView, FormView):
             # a successful response depending on 'approval_prompt' url parameter
             require_approval = request.GET.get('approval_prompt', 'force')
             if require_approval == 'auto':
-                tokens = request.user.accesstoken_set.filter(application=kwargs['application'],
+                #DEV testing
+                from oauth2_provider.models import AccessToken
+                user_id = str(request.user.id)
+                tokens = AccessToken.objects.filter(user=user_id, application=kwargs['application'],
                                                              expires__gt=timezone.now()).all()
                 # check past authorizations regarded the same scopes as the current one
                 for token in tokens:

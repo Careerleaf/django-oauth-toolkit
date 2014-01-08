@@ -210,7 +210,9 @@ class OAuth2Validator(RequestValidator):
             grant = Grant.objects.get(code=code, application=client)
             if not grant.is_expired():
                 request.scopes = grant.scope.split(' ')
-                request.user = grant.user
+                #TODO: dev testing only change
+                from eprofile.models import Cand
+                request.user = Cand.objects(id=grant.user).first()
                 return True
             return False
 
@@ -251,7 +253,7 @@ class OAuth2Validator(RequestValidator):
     def save_authorization_code(self, client_id, code, request, *args, **kwargs):
         expires = timezone.now() + timedelta(
             seconds=oauth2_settings.AUTHORIZATION_CODE_EXPIRE_SECONDS)
-        g = Grant(application=request.client, user=request.user, code=code['code'],
+        g = Grant(application=request.client, user=str(request.user.id), code=code['code'],
                   expires=expires, redirect_uri=request.redirect_uri,
                   scope=' '.join(request.scopes))
         g.save()
