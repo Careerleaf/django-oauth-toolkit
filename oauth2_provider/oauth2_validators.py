@@ -5,16 +5,30 @@ import logging
 from datetime import timedelta
 
 from django.utils import timezone
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_backends
 from oauthlib.oauth2 import RequestValidator
 
 from .compat import unquote_plus
 from .models import Grant, AccessToken, RefreshToken, get_application_model
 from .settings import oauth2_settings
 
+
+
 def find_user_by_id(user_id):
-    from eprofile.models import Cand 
-    return Cand.objects(id=user_id).first()
+    user = None
+    backends = get_backends()
+
+    for auth_backend in backends:
+        try:
+            user = auth_backend.get_user(user_id)
+        except ValueError: 
+            continue
+
+        if user:
+            break
+    return user 
+
+
 
 Application = get_application_model()
 
@@ -216,9 +230,7 @@ class OAuth2Validator(RequestValidator):
             grant = Grant.objects.get(code=code, application=client)
             if not grant.is_expired():
                 request.scopes = grant.scope.split(' ')
-                #TODO: dev testing only change
-                from eprofile.models import Cand
-                request.user = Cand.objects(id=grant.user).first()
+                request.user = find_user_by_id(grant.user)
                 return True
             return False
 
