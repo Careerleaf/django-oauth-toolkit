@@ -1,3 +1,11 @@
+Why this fork?
+====================
+Original library is tightly coupled with Django User model, so it's not possible to use different backend for authentication 
+(for example Mongoengine User model). In current implementation it still requires SQL database for oAuth provider stuff, but
+at least it's possible to use custom login backend that returns user object)
+
+
+
 Django OAuth Toolkit
 ====================
 
